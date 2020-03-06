@@ -28,7 +28,6 @@ class MasterReportData(SqlData):
         'nsr_conv_option_desc_post_cooking', 'nsr_measurement_amount_post_cooking', 'nsr_same_conv_method',
         'respondent_id', 'recipe_case_id'
     ]
-    id_field = 'doc_id'
     couch_db = None
     engine_id = 'ucr'
 
@@ -39,7 +38,7 @@ class MasterReportData(SqlData):
     @property
     def obligatory_table_names(self):
         return [
-            self.id_field, 'food_code', 'food_type', 'food_base_term',
+            'doc_id', 'food_code', 'food_type', 'food_base_term',
             'conv_method_code', 'conv_option_code', 'reference_food_code', 'age_months_calculated',
         ]
 
@@ -88,9 +87,9 @@ class MasterReportData(SqlData):
     def rows(self):
         raw_data = []
         for data in self.get_data():
-            id_ = data[self.id_field]
+            id_ = data['doc_id']
             tmp = data.copy()
-            tmp.pop(self.id_field)
+            tmp.pop('doc_id')
             for name in set(self.obligatory_couch_names + self.headers_in_order):
                 if name not in self.group_by:
                     tmp[name] = None
