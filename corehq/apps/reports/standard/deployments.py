@@ -103,6 +103,7 @@ class ApplicationStatusReport(GetParamsMixin, PaginatedReportMixin, DeploymentsR
                                  help_text=_("The build profile from the user's last hearbeat request."),
                                  sortable=False)
             )
+        # TODO: Add column for app-version-tag if any apps in this domain have a value for cc-app-version-tag
         headers = DataTablesHeader(*columns)
         headers.custom_sort = [[1, 'desc']]
         return headers
@@ -347,6 +348,7 @@ class ApplicationStatusReport(GetParamsMixin, PaginatedReportMixin, DeploymentsR
                 _fmt_date(last_seen, fmt_for_export), _fmt_date(last_sync_date, fmt_for_export),
                 app_name or "---", build_version, commcare_version or '---'
             ]
+            # TODO: append functional version
             if self.show_build_profile:
                 row_data.append(last_build_profile_name)
 
