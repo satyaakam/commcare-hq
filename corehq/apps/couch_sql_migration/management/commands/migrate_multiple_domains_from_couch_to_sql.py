@@ -9,7 +9,11 @@ from corehq.form_processor.utils.general import (
 )
 from corehq.util.markup import SimpleTableWriter, TableRowFormatter
 
-from ...couchsqlmigration import do_couch_to_sql_migration, setup_logging
+from ...couchsqlmigration import (
+    MigrationRestricted,
+    do_couch_to_sql_migration,
+    setup_logging,
+)
 from ...missingdocs import find_missing_docs
 from ...progress import (
     couch_sql_migration_in_progress,
@@ -55,9 +59,12 @@ class Command(BaseCommand):
                 success, reason = self.migrate_domain(domain, state_dir)
                 if not success:
                     failed.append((domain, reason))
+            except MigrationRestricted as err:
+                log.error("migration restricted: %s", err)
+                self.abort(domain, state_dir)
             except Exception as err:
                 log.exception("Error migrating domain %s", domain)
-                self.abort(domain)
+                self.abort(domain, state_dir)
                 failed.append((domain, err))
 
         if failed:
