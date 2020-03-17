@@ -116,3 +116,8 @@ class TwoStageAggregateCustomQueryProvider(ConfigurableReportCustomQueryProvider
 
 class MPR2BIPregDeliveryDeathList(TwoStageAggregateCustomQueryProvider):
     AGGREGATE_FILTERS = ['dead_preg_count']
+
+    @property
+    def order_by(self):
+        #return [OrderBy(???)]
+        return []
