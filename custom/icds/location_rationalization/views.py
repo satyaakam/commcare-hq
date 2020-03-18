@@ -21,9 +21,6 @@ from custom.icds.location_rationalization.download import (
     RequestTemplateDownload,
 )
 from custom.icds.location_rationalization.dumper import Dumper
-from custom.icds.location_rationalization.forms import (
-    LocationRationalizationTemplateForm,
-)
 from custom.icds.location_rationalization.parser import Parser
 
 
@@ -52,6 +49,7 @@ class LocationRationalizationView(BaseDomainView):
         })
         context.update({
             'bulk_upload_form': get_bulk_upload_form(context),
+            'loc_types': self._location_types,
         })
         return context
 
@@ -102,43 +100,17 @@ class LocationRationalizationView(BaseDomainView):
 @require_can_edit_locations
 @require_GET
 def download_location_rationalization(request, domain):
-    pass
+    location_type = request.GET.get('location_type')
+    location_id = request.GET.get('location_id')
 
+    import pdb; pdb.set_trace()
+    if not location_type or not location_id:
+        messages.error(request, _("Please select a location  and a location type."))
+        return HttpResponseRedirect(reverse(LocationRationalizationView.urlname, args=[domain]))
 
-'''
-class DownloadTemplateView(BaseLocationRationalizationView):
-    page_title = _('Download Location Rationalization Template')
-    urlname = 'download_location_rationalization_template'
-    template_name = 'location_rationalization/download.html'
-
-    def section_url(self):
-        return self.page_url
-
-    @property
-    def page_context(self):
-        context = super(DownloadTemplateView, self).page_context
-        context['form'] = self.form
-        return context
-
-    @property
-    @memoized
-    def form(self):
-        if self.request.POST:
-            return LocationRationalizationTemplateForm(self.domain, self.request.POST)
-        return LocationRationalizationTemplateForm(self.domain)
-
-    def post(self, request, *args, **kwargs):
-        if self.form.is_valid():
-            return self._generate_response()
-        return self.get(request, *args, **kwargs)
-
-    def _generate_response(self):
-        response_file = RequestTemplateDownload(
-            self.domain, self.form.cleaned_data['location_id'],
-            self.form.cleaned_data['location_type']).dump()
-        response_file.seek(0)
-        response = HttpResponse(response_file, content_type="text/html; charset=utf-8")
-        filename = '%s Location Rationalization Request Template' % self.domain
-        response['Content-Disposition'] = safe_filename_header(filename, 'xlsx')
-        return response
-'''
+    response_file = RequestTemplateDownload(domain, location_id, location_type).dump()
+    response_file.seek(0)
+    response = HttpResponse(response_file, content_type="text/html; charset=utf-8")
+    filename = '%s Location Rationalization Request Template' % domain
+    response['Content-Disposition'] = safe_filename_header(filename, 'xlsx')
+    return response
